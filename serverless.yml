@@ -1,0 +1,25 @@
+service: aws-cost-notifier
+
+frameworkVersion: '3'
+
+plugins:
+  - serverless-webpack
+  - serverless-iam-roles-per-function
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: ap-northeast-1
+
+functions:
+  awsCostNotifier:
+    handler: src/functions/awsCostNotifier.handler
+    events:
+      - schedule: cron(0 0 * * ? *)
+    environment:
+      SLACK_WEBHOOK_URL: ${ssm:SLACK_WEBHOOK_URL_COST_NOTIFIER}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - ce:GetCostAndUsage
+        Resource: "*"
